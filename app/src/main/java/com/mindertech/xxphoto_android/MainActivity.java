@@ -2,6 +2,7 @@ package com.mindertech.xxphoto_android;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,15 @@ public class MainActivity extends AppCompatActivity {
     public void onTextClick(View view) {
         Intent intent = new Intent(this, XXPhotoMainUI.class);
         startActivity(intent);
+
+
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().setNavigationBarColor(Color.parseColor("#008577"));
+        }
+    }
 }
