@@ -10,11 +10,16 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.ViewPager;
 
 import com.mindertech.xxphoto.R;
 import com.mindertech.xxphoto.R2;
+import com.mindertech.xxphoto.list.XXPhotoListFragment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -27,7 +32,7 @@ import butterknife.OnClick;
  * @time 2019-12-06 13:50
  * @description 描述
  */
-public class XXPhotoMainUI extends FragmentActivity {
+public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageChangeListener {
 
     @BindView(R2.id.vp_content)
     ViewPager vpContent;
@@ -47,6 +52,12 @@ public class XXPhotoMainUI extends FragmentActivity {
     ImageView ivPre;
     @BindView(R2.id.iv_next)
     ImageView ivNext;
+    @BindView(R2.id.tv_page_title)
+    TextView tvPageTitle;
+    @BindView(R2.id.tv_page_subtitle)
+    TextView tvPageSubtitle;
+
+    private XXPhotoFragmentPagerAdapter pagerAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -55,6 +66,16 @@ public class XXPhotoMainUI extends FragmentActivity {
         ButterKnife.bind(this);
 
         tvAlbum.setText("fdsafa");
+        ArrayList<Fragment>pageList = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            Fragment fragment = new Fragment();
+            if (i == 1) {
+
+            }
+            pageList.add(fragment);
+        }
+        pagerAdapter = new XXPhotoFragmentPagerAdapter(getSupportFragmentManager(), pageList);
+        vpContent.setAdapter(pagerAdapter);
     }
 
     @OnClick({R2.id.iv_pre, R2.id.iv_next, R2.id.tv_back, R2.id.tv_upload, R2.id.tv_album})
@@ -83,6 +104,21 @@ public class XXPhotoMainUI extends FragmentActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
 
     }
 }
