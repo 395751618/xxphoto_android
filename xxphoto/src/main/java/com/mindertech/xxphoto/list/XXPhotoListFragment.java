@@ -1,5 +1,6 @@
 package com.mindertech.xxphoto.list;
 
+import android.content.ContentResolver;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -36,7 +38,6 @@ public class XXPhotoListFragment extends Fragment {
 
     private void initView(View view) {
         recyclerView = (RecyclerView)view.findViewById(R.id.rv_content);
-
         GridLayoutManager manager = new GridLayoutManager(getActivity(), 4);
         recyclerView.setLayoutManager(manager);
 

@@ -25,6 +25,8 @@ import java.util.List;
  */
 public final class XXPhotoUtils {
 
+    public static String XXPHOTO_PARAM_LIST = "list";
+    public static String XXPHOTO_PARAM_CURRENT_INDEX = "index";
     public static  String[] permissions1 = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
     public static String[] permissions2 = {Manifest.permission.CAMERA, Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
