@@ -136,14 +136,14 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
 
     private void refreshTopToolBar(int position) {
         if (0 == position && pagerAdapter.getCount() - 1 == position) {
-            layoutPre.setVisibility(View.GONE);
-            layoutNext.setVisibility(View.GONE);
+            layoutPre.setVisibility(View.INVISIBLE);
+            layoutNext.setVisibility(View.INVISIBLE);
         } else if (0 == position) {
-            layoutPre.setVisibility(View.GONE);
+            layoutPre.setVisibility(View.INVISIBLE);
             layoutNext.setVisibility(View.VISIBLE);
         } else if (pagerAdapter.getCount() - 1 == position) {
             layoutPre.setVisibility(View.VISIBLE);
-            layoutNext.setVisibility(View.GONE);
+            layoutNext.setVisibility(View.INVISIBLE);
         } else {
             layoutPre.setVisibility(View.VISIBLE);
             layoutNext.setVisibility(View.VISIBLE);
