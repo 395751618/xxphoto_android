@@ -80,6 +80,7 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
     LinearLayout layoutNext;
 
     private ArrayList<XXPhotoPageBean> pageBeans;
+    private ArrayList<XXPhotoListFragment> pageList = new ArrayList<>();
     private int currentIndex = 0;
     private XXPhotoFragmentPagerAdapter pagerAdapter;
     private XXPhotoPresenter presenter;
@@ -110,7 +111,6 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
         currentIndex = getIntent().getIntExtra(XXPhotoUtils.XXPHOTO_PARAM_CURRENT_INDEX, 0);
         pageBeans = getIntent().getParcelableArrayListExtra(XXPhotoUtils.XXPHOTO_PARAM_LIST);
 
-        ArrayList<XXPhotoListFragment> pageList = new ArrayList<>();
         for (int i = 0; i < pageBeans.size(); i++) {
             XXPhotoListFragment fragment = new XXPhotoListFragment(pageBeans.get(i));
             fragment.setListListener(this);
@@ -119,6 +119,7 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
             selectedPhotoMap.put(pageBeans.get(i).key, new ArrayList<>());
         }
         pagerAdapter = new XXPhotoFragmentPagerAdapter(getSupportFragmentManager(), pageList);
+        vpContent.setOffscreenPageLimit(pageBeans.size());
         vpContent.setAdapter(pagerAdapter);
         vpContent.addOnPageChangeListener(this);
         if (currentIndex != 0) {
@@ -148,7 +149,7 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
             layoutNext.setVisibility(View.VISIBLE);
         }
 
-        XXPhotoListFragment fragment = (XXPhotoListFragment) pagerAdapter.getItem(position);
+        XXPhotoListFragment fragment = pageList.get(position);
         XXPhotoPageBean bean = fragment.getPageBean();
         tvPageTitle.setText(bean.title);
         tvPageSubtitle.setText(bean.subtitle);
@@ -229,7 +230,7 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
             @Override
             public void run() {
                 for (int i = 0; i < pagerAdapter.getCount(); i++) {
-                    XXPhotoListFragment fragment = (XXPhotoListFragment) pagerAdapter.getItem(i);
+                    XXPhotoListFragment fragment = pageList.get(i);
                     fragment.swapCursor(cursor);
                 }
             }
@@ -269,7 +270,7 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
     }
 
     private void swapOtherSelectedPhoto(int position) {
-        XXPhotoListFragment fragment = (XXPhotoListFragment) pagerAdapter.getItem(position);
+        XXPhotoListFragment fragment = pageList.get(position);
         String key = fragment.getPageBean().key;
 
         ArrayList<Item> items = new ArrayList<>();
