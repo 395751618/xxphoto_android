@@ -47,6 +47,6 @@ public class XXPhotoAlbumGridAdapter extends CursorAdapter {
         String name = album.getDisplayName(context) + " (" + String.valueOf(album.getCount()) + ")";
         tv_name.setText(name);
 
-        new PicassoEngine().loadImage(mContext, 200, 200, iv_image, Uri.fromFile(new File(album.getCoverPath())));
+        new PicassoEngine().loadImage(mContext, 120, 120, iv_image, Uri.fromFile(new File(album.getCoverPath())));
     }
 }
