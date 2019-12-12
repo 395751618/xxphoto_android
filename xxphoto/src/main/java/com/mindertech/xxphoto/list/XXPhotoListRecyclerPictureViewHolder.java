@@ -1,6 +1,7 @@
 package com.mindertech.xxphoto.list;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.view.LayoutInflater;
@@ -15,7 +16,11 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mindertech.xxphoto.R;
+import com.zhihu.matisse.engine.impl.GlideEngine;
+import com.zhihu.matisse.engine.impl.PicassoEngine;
 import com.zhihu.matisse.internal.entity.Item;
+import com.zhihu.matisse.internal.entity.SelectionSpec;
+import com.zhihu.matisse.internal.utils.PhotoMetadataUtils;
 
 /**
  * @project xxphoto_android
@@ -130,6 +135,6 @@ public class XXPhotoListRecyclerPictureViewHolder extends RecyclerView.ViewHolde
 
         }
 
-
+        new PicassoEngine().loadImage(mContext, 200, 200, thumbnail, item.getContentUri());
     }
 }

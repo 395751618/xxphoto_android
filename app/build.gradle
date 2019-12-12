@@ -33,4 +33,5 @@ dependencies {
     implementation project(path: ':xxphoto')
 
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.10.0'
 }

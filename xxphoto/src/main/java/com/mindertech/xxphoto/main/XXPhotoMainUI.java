@@ -134,9 +134,6 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
     }
 
     private void refreshTopToolBar(int position) {
-        if (currentIndex == position) {
-            return;
-        }
         if (0 == position && pagerAdapter.getCount() - 1 == position) {
             layoutPre.setVisibility(View.GONE);
             layoutNext.setVisibility(View.GONE);
@@ -151,7 +148,7 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
             layoutNext.setVisibility(View.VISIBLE);
         }
 
-        XXPhotoListFragment fragment = (XXPhotoListFragment) pagerAdapter.getItem(currentIndex);
+        XXPhotoListFragment fragment = (XXPhotoListFragment) pagerAdapter.getItem(position);
         XXPhotoPageBean bean = fragment.getPageBean();
         tvPageTitle.setText(bean.title);
         tvPageSubtitle.setText(bean.subtitle);
@@ -201,9 +198,11 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
 
     @Override
     public void onPageSelected(int position) {
-        refreshTopToolBar(position);
+        if (currentIndex == position) {
+            return;
+        }
         currentIndex = position;
-
+        refreshTopToolBar(position);
         swapOtherSelectedPhoto(position);
     }
 

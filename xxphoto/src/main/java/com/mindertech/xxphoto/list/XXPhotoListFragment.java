@@ -93,6 +93,12 @@ public class XXPhotoListFragment extends Fragment implements XXPhotoListItemList
     public void swapOtherSelectedPhoto(ArrayList<Item> items) {
         if (null != adapter) {
             adapter.swapOtherSelectedPhoto(items);
+            if (false == adapter.hasData()) {
+                Cursor cursor = listener.onPhotoList(this, bean);
+                if (null != cursor) {
+                    swapCursor(cursor);
+                }
+            }
         }
     }
 

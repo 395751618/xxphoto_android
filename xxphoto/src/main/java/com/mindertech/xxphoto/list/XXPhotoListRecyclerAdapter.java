@@ -157,4 +157,11 @@ public class XXPhotoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
         otherSelectedPhotoList = items;
         notifyDataSetChanged();
     }
+
+    public boolean hasData() {
+        if (null == mCursor) {
+            return false;
+        }
+        return true;
+    }
 }
