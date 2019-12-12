@@ -29,8 +29,9 @@ public class XXPhotoPresenter<V extends FragmentActivity> implements AlbumCollec
     private Cursor albumList; //相册列表
 
     private AlbumMediaCollection mAlbumMediaCollection;
-    public static final int request_code_capture = 500;
     private Album currentAlbum; //当前相册对象
+
+    private Cursor currentAlbumItems; // 当前相册内所有的照片
 
     public void loadData(Bundle savedInstanceState) {
         mAlbumCollection.onCreate(mView, this);
@@ -112,6 +113,7 @@ public class XXPhotoPresenter<V extends FragmentActivity> implements AlbumCollec
 
     @Override
     public void onAlbumMediaLoad(Cursor cursor) {
+        this.currentAlbumItems = cursor;
         if (null != listener) {
             listener.onCurrentAlbumListResponse(cursor);
         }
@@ -137,5 +139,9 @@ public class XXPhotoPresenter<V extends FragmentActivity> implements AlbumCollec
 
     public Cursor albumList() {
         return this.albumList;
+    }
+
+    public Cursor albumItems() {
+        return this.currentAlbumItems;
     }
 }

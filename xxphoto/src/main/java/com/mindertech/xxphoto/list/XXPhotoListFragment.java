@@ -16,6 +16,11 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mindertech.xxphoto.R;
+import com.mindertech.xxphoto.bean.XXPhotoPageBean;
+import com.mindertech.xxphoto.main.XXPhotoMainUI;
+import com.zhihu.matisse.internal.entity.Item;
+
+import java.util.ArrayList;
 
 import butterknife.ButterKnife;
 
@@ -26,10 +31,16 @@ import butterknife.ButterKnife;
  * @time 2019-12-11 09:45
  * @description 描述
  */
-public class XXPhotoListFragment extends Fragment {
+public class XXPhotoListFragment extends Fragment implements XXPhotoListItemListener, XXPhotoListListener {
 
+    private XXPhotoPageBean bean;
     private RecyclerView recyclerView;
     private XXPhotoListRecyclerAdapter adapter;
+    private XXPhotoListListener listener;
+
+    public XXPhotoListFragment(XXPhotoPageBean bean) {
+        this.bean = bean;
+    }
 
     @Nullable
     @Override
@@ -48,13 +59,52 @@ public class XXPhotoListFragment extends Fragment {
         recyclerView.addItemDecoration(itemDecoration);
 
         Drawable drawable = ContextCompat.getDrawable(getContext(), R.drawable.photo_add);
-        adapter = new XXPhotoListRecyclerAdapter(getContext(), drawable);
+        adapter = new XXPhotoListRecyclerAdapter(getContext(), drawable, this);
         recyclerView.setAdapter(adapter);
     }
 
+    public void setListListener(XXPhotoListListener listener) {
+        this.listener = listener;
+        Cursor cursor = listener.onPhotoList(this, bean);
+        if (null != cursor) {
+            swapCursor(cursor);
+        }
+    }
+
+    public XXPhotoPageBean getPageBean() {
+        return bean;
+    }
+
+    @Override
     public void swapCursor(Cursor cursor) {
         if (null != adapter) {
             adapter.swapCursor(cursor);
         }
+    }
+
+    @Override
+    public void swapSelectedPhoto(ArrayList<Item> items) {
+        if (null != adapter) {
+            adapter.swapSelectedPhoto(items);
+        }
+    }
+
+    @Override
+    public void swapOtherSelectedPhoto(ArrayList<Item> items) {
+        if (null != adapter) {
+            adapter.swapOtherSelectedPhoto(items);
+        }
+    }
+
+    @Override
+    public void onSelectedItem(XXPhotoListFragment fragment, XXPhotoPageBean bean, Item item, boolean selected) {
+        if (null != listener) {
+            listener.onSelectedItem(this, this.bean, item, selected);
+        }
+    }
+
+    @Override
+    public Cursor onPhotoList(XXPhotoListFragment fragment, XXPhotoPageBean bean) {
+        return null;
     }
 }

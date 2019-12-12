@@ -27,12 +27,17 @@ import com.mindertech.xxphoto.album.XXPhotoAlbumListener;
 import com.mindertech.xxphoto.album.XXPhotoAlbumUI;
 import com.mindertech.xxphoto.bean.XXPhotoPageBean;
 import com.mindertech.xxphoto.list.XXPhotoListFragment;
+import com.mindertech.xxphoto.list.XXPhotoListListener;
 import com.mindertech.xxphoto.presenter.XXPhotoModelListener;
 import com.mindertech.xxphoto.presenter.XXPhotoPresenter;
 import com.mindertech.xxphoto.utils.XXPhotoUtils;
 import com.zhihu.matisse.internal.entity.Album;
+import com.zhihu.matisse.internal.entity.Item;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,7 +50,7 @@ import butterknife.OnClick;
  * @time 2019-12-06 13:50
  * @description 描述
  */
-public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageChangeListener, XXPhotoModelListener, XXPhotoAlbumListener {
+public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageChangeListener, XXPhotoModelListener, XXPhotoAlbumListener, XXPhotoListListener {
 
     @BindView(R2.id.vp_content)
     ViewPager vpContent;
@@ -77,8 +82,8 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
     private ArrayList<XXPhotoPageBean> pageBeans;
     private int currentIndex = 0;
     private XXPhotoFragmentPagerAdapter pagerAdapter;
-
     private XXPhotoPresenter presenter;
+    public Map<String, ArrayList<Item>> selectedPhotoMap = new HashMap<>();
 
     /**
      * 打开图片选择器
@@ -107,8 +112,11 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
 
         ArrayList<XXPhotoListFragment> pageList = new ArrayList<>();
         for (int i = 0; i < pageBeans.size(); i++) {
-            XXPhotoListFragment fragment = new XXPhotoListFragment();
+            XXPhotoListFragment fragment = new XXPhotoListFragment(pageBeans.get(i));
+            fragment.setListListener(this);
             pageList.add(fragment);
+
+            selectedPhotoMap.put(pageBeans.get(i).key, new ArrayList<>());
         }
         pagerAdapter = new XXPhotoFragmentPagerAdapter(getSupportFragmentManager(), pageList);
         vpContent.setAdapter(pagerAdapter);
@@ -129,13 +137,13 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
         if (currentIndex == position) {
             return;
         }
-        if (0 == position && pageBeans.size() - 1 == position) {
+        if (0 == position && pagerAdapter.getCount() - 1 == position) {
             layoutPre.setVisibility(View.GONE);
             layoutNext.setVisibility(View.GONE);
         } else if (0 == position) {
             layoutPre.setVisibility(View.GONE);
             layoutNext.setVisibility(View.VISIBLE);
-        } else if (pageBeans.size() - 1 == position) {
+        } else if (pagerAdapter.getCount() - 1 == position) {
             layoutPre.setVisibility(View.VISIBLE);
             layoutNext.setVisibility(View.GONE);
         } else {
@@ -143,7 +151,8 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
             layoutNext.setVisibility(View.VISIBLE);
         }
 
-        XXPhotoPageBean bean = pageBeans.get(position);
+        XXPhotoListFragment fragment = (XXPhotoListFragment) pagerAdapter.getItem(currentIndex);
+        XXPhotoPageBean bean = fragment.getPageBean();
         tvPageTitle.setText(bean.title);
         tvPageSubtitle.setText(bean.subtitle);
     }
@@ -156,7 +165,7 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
             }
             vpContent.setCurrentItem(currentIndex - 1, true);
         } else if (view.equals(layoutNext)) {
-            if (pageBeans.size() - 1 == currentIndex) {
+            if (pagerAdapter.getCount() - 1 == currentIndex) {
                 return;
             }
             vpContent.setCurrentItem(currentIndex + 1, true);
@@ -182,7 +191,7 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
+        presenter.detachView();
     }
 
     @Override
@@ -194,6 +203,8 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
     public void onPageSelected(int position) {
         refreshTopToolBar(position);
         currentIndex = position;
+
+        swapOtherSelectedPhoto(position);
     }
 
     @Override
@@ -232,4 +243,44 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
         tvAlbum.setText(album.getDisplayName(this));
         presenter.onCurrentAlbumPhotoList(album);
     }
+
+    @Override
+    public void onSelectedItem(XXPhotoListFragment fragment, XXPhotoPageBean bean, Item item, boolean selected) {
+        ArrayList<Item> items = selectedPhotoMap.get(bean.key);
+        if (selected) {
+            items.add(item);
+        } else {
+            for (int i = 0;i < items.size();i ++) {
+                Item item1 = items.get(i);
+                if (item.id == item1.id) {
+                    items.remove(i);
+                    break;
+                }
+            }
+        }
+        fragment.swapSelectedPhoto(items);
+    }
+
+    @Override
+    public Cursor onPhotoList(XXPhotoListFragment fragment, XXPhotoPageBean bean) {
+        if (null == presenter) {
+            return null;
+        }
+        return presenter.albumItems();
+    }
+
+    private void swapOtherSelectedPhoto(int position) {
+        XXPhotoListFragment fragment = (XXPhotoListFragment) pagerAdapter.getItem(position);
+        String key = fragment.getPageBean().key;
+
+        ArrayList<Item> items = new ArrayList<>();
+        Set<Map.Entry<String, ArrayList<Item>>> entrySet = selectedPhotoMap.entrySet();
+        for (Map.Entry<String, ArrayList<Item>> entry : entrySet) {
+            if (key != entry.getKey()) {
+                items.addAll(entry.getValue());
+            }
+        }
+        fragment.swapOtherSelectedPhoto(items);
+    }
+
 }

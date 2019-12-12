@@ -1,5 +1,8 @@
 package com.mindertech.xxphoto.list;
 
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -12,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mindertech.xxphoto.R;
+import com.zhihu.matisse.internal.entity.Item;
 
 /**
  * @project xxphoto_android
@@ -30,8 +34,15 @@ public class XXPhotoListRecyclerPictureViewHolder extends RecyclerView.ViewHolde
     private ImageView status4ImageView;
     private TextView countTextView;
 
-    public XXPhotoListRecyclerPictureViewHolder(@NonNull View itemView) {
+    private Context mContext;
+    private Item mMedia;
+    private int mStatus;
+    private XXPhotoListListener listener;
+
+    public XXPhotoListRecyclerPictureViewHolder(View itemView, XXPhotoListListener listener) {
         super(itemView);
+        this.listener = listener;
+
         thumbnail = (ImageView) itemView.findViewById(R.id.item_thumbnail);
         relativeLayout = (RelativeLayout) itemView.findViewById(R.id.item_selected);
         status1ImageView = (ImageView) itemView.findViewById(R.id.iv_state_1);
@@ -43,20 +54,82 @@ public class XXPhotoListRecyclerPictureViewHolder extends RecyclerView.ViewHolde
         relativeLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                onItemClick();
             }
         });
 
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                onItemClick();
             }
         });
+    }
+
+    public void onItemClick() {
+        if (null != listener) {
+            if (mStatus == 1) {
+                listener.onSelectedItem(null, null, mMedia, false);
+            } else
+            {
+                listener.onSelectedItem(null, null, mMedia, true);
+            }
+        }
     }
 
     public static View creator(ViewGroup parent) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_xxlist_item_picture, parent, false);
         return view;
+    }
+
+    public void bindMedia(Context context, Drawable placeholder, Item item, int status, String count) {
+        mContext = context;
+        mMedia = item;
+        mStatus = status;
+        if (null == thumbnail) {
+            return;
+        }
+        Uri uri = mMedia.getContentUri();
+        if (null == uri) {
+            return;
+        }
+
+        switch (status) {
+            case 0://可选，未选
+                relativeLayout.setEnabled(true);
+                status1ImageView.setVisibility(View.VISIBLE);
+                status2ImageView.setVisibility(View.GONE);
+                status3ImageView.setVisibility(View.GONE);
+                status4ImageView.setVisibility(View.GONE);
+                countTextView.setText("");
+                break;
+            case 1://可选，选中
+                relativeLayout.setEnabled(true);
+                status1ImageView.setVisibility(View.GONE);
+                status2ImageView.setVisibility(View. VISIBLE);
+                status3ImageView.setVisibility(View.GONE);
+                status4ImageView.setVisibility(View.GONE);
+                countTextView.setText(count);
+                break;
+            case 2://不可选
+                relativeLayout.setEnabled(false);
+                status1ImageView.setVisibility(View.GONE);
+                status2ImageView.setVisibility(View.GONE);
+                status3ImageView.setVisibility(View.VISIBLE);
+                status4ImageView.setVisibility(View.VISIBLE);
+                countTextView.setText("");
+                break;
+            default:
+                relativeLayout.setEnabled(false);
+                status1ImageView.setVisibility(View.GONE);
+                status2ImageView.setVisibility(View.GONE);
+                status3ImageView.setVisibility(View.GONE);
+                status4ImageView.setVisibility(View.GONE);
+                countTextView.setText("");
+                break;
+
+        }
+
+
     }
 }

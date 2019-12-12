@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.zhihu.matisse.internal.entity.Item;
 
+import java.util.ArrayList;
+
 /**
  * @project xxphoto_android
  * @package：com.mindertech.xxphoto.list
@@ -18,19 +20,22 @@ import com.zhihu.matisse.internal.entity.Item;
  * @time 2019-12-11 10:10
  * @description 描述
  */
-public class XXPhotoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class XXPhotoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements XXPhotoListItemListener {
 
     private static final int VIEW_TYPE_CAPTURE = 0x01;
     private static final int VIEW_TYPE_MEDIA = 0x02;
     private Context mContext;
-    private final Drawable addDrawable;
+    private final Drawable mPlaceholderDrawable;
+    private XXPhotoListListener listener;
     private Cursor mCursor;
-
     private int mRowIDColumn;
+    private ArrayList<Item> otherSelectedPhotoList = new ArrayList<>();
+    private ArrayList<Item> selectedPhotoList = new ArrayList<>();
 
-    public XXPhotoListRecyclerAdapter(Context context, Drawable drawable) {
+    public XXPhotoListRecyclerAdapter(Context context, Drawable drawable, XXPhotoListListener listener) {
         this.mContext = context;
-        this.addDrawable = drawable;
+        this.mPlaceholderDrawable = drawable;
+        this.listener = listener;
         setHasStableIds(true);
     }
 
@@ -41,7 +46,7 @@ public class XXPhotoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
             return new XXPhotoListRecyclerCameraViewHolder(XXPhotoListRecyclerCameraViewHolder.creator(parent));
         }
         if (viewType == VIEW_TYPE_MEDIA) {
-            return new XXPhotoListRecyclerPictureViewHolder(XXPhotoListRecyclerPictureViewHolder.creator(parent));
+            return new XXPhotoListRecyclerPictureViewHolder(XXPhotoListRecyclerPictureViewHolder.creator(parent), listener);
         }
         return null;
     }
@@ -49,7 +54,38 @@ public class XXPhotoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof XXPhotoListRecyclerPictureViewHolder) {
+            final Item item = Item.valueOf(mCursor);
 
+            int status = 0;
+            int count = 0;
+            boolean isOtherselectedPhoto = false;
+            boolean isSelectedPhoto = false;
+
+            for (int i = 0;i < otherSelectedPhotoList.size();i ++) {
+                Item item1 = otherSelectedPhotoList.get(i);
+                if (item.id == item1.id) {
+                    isOtherselectedPhoto = true;
+                    break;
+                }
+            }
+            for (int i = 0;i < selectedPhotoList.size();i ++) {
+                Item item1 = selectedPhotoList.get(i);
+                if (item.id == item1.id) {
+                    isSelectedPhoto = true;
+                    count = i + 1;
+                    break;
+                }
+            }
+
+            if (isOtherselectedPhoto) {
+                status = 2;
+            }
+            if (isSelectedPhoto) {
+                status = 1;
+            }
+
+            XXPhotoListRecyclerPictureViewHolder viewItem = (XXPhotoListRecyclerPictureViewHolder) holder;
+            viewItem.bindMedia(mContext, mPlaceholderDrawable, item, status, (count == 0 ? "" : String.valueOf(count)));
         }
     }
 
@@ -87,12 +123,13 @@ public class XXPhotoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
         return cursor != null && !cursor.isClosed();
     }
 
-    public void swapCursor(Cursor newCursor) {
-        if (newCursor == mCursor) {
+    @Override
+    public void swapCursor(Cursor cursor) {
+        if (cursor == mCursor) {
             return;
         }
-        if (newCursor != null) {
-            mCursor = newCursor;
+        if (cursor != null) {
+            mCursor = cursor;
             mRowIDColumn = mCursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID);
             // notify the observers about the new cursor
             notifyDataSetChanged();
@@ -101,5 +138,23 @@ public class XXPhotoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
             mCursor = null;
             mRowIDColumn = -1;
         }
+    }
+
+    @Override
+    public void swapSelectedPhoto(ArrayList<Item> items) {
+        if (null == items) {
+            return;
+        }
+        selectedPhotoList = items;
+        notifyDataSetChanged();
+    }
+
+    @Override
+    public void swapOtherSelectedPhoto(ArrayList<Item> items) {
+        if (null == items) {
+            return;
+        }
+        otherSelectedPhotoList = items;
+        notifyDataSetChanged();
     }
 }
