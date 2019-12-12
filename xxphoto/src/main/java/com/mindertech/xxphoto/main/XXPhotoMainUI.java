@@ -95,11 +95,11 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
      * @author xiangxia
      * @createAt 2019-12-11 17:38
      */
-    public static void openPhoto(Context context, Activity activity, ArrayList<XXPhotoPageBean> list, int currentIndex) {
+    public static void openPhoto(Context context, Activity activity, ArrayList<XXPhotoPageBean> list, int currentIndex, int requestCode) {
         Intent intent = new Intent(context, XXPhotoMainUI.class);
         intent.putExtra(XXPhotoUtils.XXPHOTO_PARAM_LIST, list);
         intent.putExtra(XXPhotoUtils.XXPHOTO_PARAM_CURRENT_INDEX, currentIndex);
-        activity.startActivity(intent);
+        activity.startActivityForResult(intent, requestCode);
     }
 
     @Override
@@ -170,6 +170,18 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
         } else if (view.equals(tvBack)) {
             finish();
         } else if (view.equals(tvUpload)) {
+            for (int i = 0;i < pageBeans.size();i ++) {
+                XXPhotoPageBean tmodel = pageBeans.get(i);
+                ArrayList<Item> items = selectedPhotoMap.get(tmodel.key);
+                for (int j = 0;j < items.size();j ++) {
+                    Item item = items.get(j);
+                    tmodel.uriArrayList.add(item.uri);
+                }
+            }
+
+            Intent intent = new Intent();
+            intent.putParcelableArrayListExtra(XXPhotoUtils.XXPHOTO_PARAM_LIST, pageBeans);
+            setResult(1, intent);
             finish();
         } else if (view.equals(layoutChooseAlbum)) {
             if (presenter.albumListLoaded()) {

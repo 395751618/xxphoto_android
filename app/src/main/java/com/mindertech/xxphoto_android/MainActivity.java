@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.mindertech.xxphoto.bean.XXPhotoPageBean;
@@ -52,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
                     bean.key = String.valueOf(i) + "category";
                     list.add(bean);
                 }
-                XXPhotoMainUI.openPhoto(getApplicationContext(), MainActivity.this, list, 0);
+                XXPhotoMainUI.openPhoto(getApplicationContext(), MainActivity.this, list, 0, 200);
             }
 
             @Override
@@ -81,5 +82,17 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         XXPhotoUtils.handle(this, requestCode, permissions, grantResults);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 200) {
+            if (resultCode == 1) {
+                ArrayList<XXPhotoPageBean> photoPutArray = data.getParcelableArrayListExtra(XXPhotoUtils.XXPHOTO_PARAM_LIST);
+                System.out.println("");
+            }
+        }
     }
 }
