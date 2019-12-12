@@ -3,9 +3,12 @@ package com.mindertech.xxphoto.main;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -20,9 +23,14 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.mindertech.xxphoto.R;
 import com.mindertech.xxphoto.R2;
+import com.mindertech.xxphoto.album.XXPhotoAlbumListener;
+import com.mindertech.xxphoto.album.XXPhotoAlbumUI;
 import com.mindertech.xxphoto.bean.XXPhotoPageBean;
 import com.mindertech.xxphoto.list.XXPhotoListFragment;
+import com.mindertech.xxphoto.presenter.XXPhotoModelListener;
+import com.mindertech.xxphoto.presenter.XXPhotoPresenter;
 import com.mindertech.xxphoto.utils.XXPhotoUtils;
+import com.zhihu.matisse.internal.entity.Album;
 
 import java.util.ArrayList;
 
@@ -37,7 +45,7 @@ import butterknife.OnClick;
  * @time 2019-12-06 13:50
  * @description 描述
  */
-public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageChangeListener {
+public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageChangeListener, XXPhotoModelListener, XXPhotoAlbumListener {
 
     @BindView(R2.id.vp_content)
     ViewPager vpContent;
@@ -69,6 +77,8 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
     private ArrayList<XXPhotoPageBean> pageBeans;
     private int currentIndex = 0;
     private XXPhotoFragmentPagerAdapter pagerAdapter;
+
+    private XXPhotoPresenter presenter;
 
     /**
      * 打开图片选择器
@@ -108,6 +118,11 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
         } else {
             refreshTopToolBar(currentIndex);
         }
+
+        presenter = new XXPhotoPresenter();
+        presenter.attachView(this);
+        presenter.setPresenterListener(this);
+        presenter.loadData(savedInstanceState);
     }
 
     private void refreshTopToolBar(int position) {
@@ -133,7 +148,7 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
         tvPageSubtitle.setText(bean.subtitle);
     }
 
-    @OnClick({R2.id.layout_pre, R2.id.layout_next, R2.id.tv_back, R2.id.tv_upload, R2.id.tv_album})
+    @OnClick({R2.id.layout_pre, R2.id.layout_next, R2.id.tv_back, R2.id.tv_upload, R2.id.layout_choose_album})
     public void onTouchClick(View view) {
         if (view.equals(layoutPre)) {
             if (0 == currentIndex) {
@@ -149,8 +164,10 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
             finish();
         } else if (view.equals(tvUpload)) {
             finish();
-        } else if (view.equals(tvAlbum)) {
-
+        } else if (view.equals(layoutChooseAlbum)) {
+            if (presenter.albumListLoaded()) {
+                XXPhotoAlbumUI.show(this, presenter.albumList(), this);
+            }
         }
     }
 
@@ -182,5 +199,37 @@ public class XXPhotoMainUI extends FragmentActivity implements ViewPager.OnPageC
     @Override
     public void onPageScrollStateChanged(int state) {
 
+    }
+
+    @Override
+    public void onAlbumListResponse(Cursor cursor) {
+
+    }
+
+    @Override
+    public void onCurrentAlbumResponse(Album album) {
+        tvAlbum.setText(album.getDisplayName(this));
+    }
+
+    @Override
+    public void onCurrentAlbumListResponse(Cursor cursor) {
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(new Runnable() {
+
+            @Override
+            public void run() {
+                for (int i = 0; i < pagerAdapter.getCount(); i++) {
+                    XXPhotoListFragment fragment = (XXPhotoListFragment) pagerAdapter.getItem(i);
+                    fragment.swapCursor(cursor);
+                }
+            }
+
+        });
+    }
+
+    @Override
+    public void onAlbumsSelectedItem(Album album) {
+        tvAlbum.setText(album.getDisplayName(this));
+        presenter.onCurrentAlbumPhotoList(album);
     }
 }

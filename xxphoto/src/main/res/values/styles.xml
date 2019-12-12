@@ -6,4 +6,16 @@
         <!--Android 5.x开始需要把颜色设置透明，否则导航栏会呈现系统默认的浅灰色-->
         <item name="android:statusBarColor">@android:color/transparent</item>
     </style>
+
+    <style name="line">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1px</item>
+        <item name="android:background">#CBCBD0</item>
+    </style>
+
+    <style name="anim_xxalbum_pop" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/anim_xxalbum_pop_enter</item>
+        <item name="android:windowExitAnimation">@anim/anim_xxalbum_pop_exit</item>
+    </style>
+
 </resources>

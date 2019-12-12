@@ -7,4 +7,5 @@
     <color name="black">#000000</color>
     <color name="clear">#00000000</color>
     <color name="color_list_bg">#dddddd</color>
+    <color name="color_album_item_bg">#999999</color>
 </resources>

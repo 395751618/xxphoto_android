@@ -3,10 +3,13 @@ package com.mindertech.xxphoto.list;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.drawable.Drawable;
+import android.provider.MediaStore;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.zhihu.matisse.internal.entity.Item;
 
 /**
  * @project xxphoto_android
@@ -22,6 +25,8 @@ public class XXPhotoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
     private Context mContext;
     private final Drawable addDrawable;
     private Cursor mCursor;
+
+    private int mRowIDColumn;
 
     public XXPhotoListRecyclerAdapter(Context context, Drawable drawable) {
         this.mContext = context;
@@ -58,10 +63,43 @@ public class XXPhotoListRecyclerAdapter extends RecyclerView.Adapter<RecyclerVie
 
     @Override
     public int getItemViewType(int position) {
-        return super.getItemViewType(position);
+        if (!mCursor.moveToPosition(position)) {
+            throw new IllegalStateException("Could not move cursor to position " + position
+                    + " when trying to get item view type.");
+        }
+        return Item.valueOf(mCursor).isCapture() ? VIEW_TYPE_CAPTURE : VIEW_TYPE_MEDIA;
+    }
+
+    @Override
+    public long getItemId(int position) {
+        if (!isDataValid(mCursor)) {
+            throw new IllegalStateException("Cannot lookup item id when cursor is in invalid state.");
+        }
+        if (!mCursor.moveToPosition(position)) {
+            throw new IllegalStateException("Could not move cursor to position " + position
+                    + " when trying to get an item id");
+        }
+
+        return mCursor.getLong(mRowIDColumn);
     }
 
     private boolean isDataValid(Cursor cursor) {
         return cursor != null && !cursor.isClosed();
+    }
+
+    public void swapCursor(Cursor newCursor) {
+        if (newCursor == mCursor) {
+            return;
+        }
+        if (newCursor != null) {
+            mCursor = newCursor;
+            mRowIDColumn = mCursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns._ID);
+            // notify the observers about the new cursor
+            notifyDataSetChanged();
+        } else {
+            notifyItemRangeRemoved(0, getItemCount());
+            mCursor = null;
+            mRowIDColumn = -1;
+        }
     }
 }

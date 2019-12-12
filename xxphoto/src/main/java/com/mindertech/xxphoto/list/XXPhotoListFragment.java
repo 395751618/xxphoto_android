@@ -1,6 +1,8 @@
 package com.mindertech.xxphoto.list;
 
 import android.content.ContentResolver;
+import android.database.Cursor;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +29,7 @@ import butterknife.ButterKnife;
 public class XXPhotoListFragment extends Fragment {
 
     private RecyclerView recyclerView;
+    private XXPhotoListRecyclerAdapter adapter;
 
     @Nullable
     @Override
@@ -44,6 +47,14 @@ public class XXPhotoListFragment extends Fragment {
         XXPhotoListRecyclerItemDecoration itemDecoration = new XXPhotoListRecyclerItemDecoration();
         recyclerView.addItemDecoration(itemDecoration);
 
+        Drawable drawable = ContextCompat.getDrawable(getContext(), R.drawable.photo_add);
+        adapter = new XXPhotoListRecyclerAdapter(getContext(), drawable);
+        recyclerView.setAdapter(adapter);
+    }
 
+    public void swapCursor(Cursor cursor) {
+        if (null != adapter) {
+            adapter.swapCursor(cursor);
+        }
     }
 }
