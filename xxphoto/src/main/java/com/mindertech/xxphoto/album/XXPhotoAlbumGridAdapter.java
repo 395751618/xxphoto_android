@@ -2,6 +2,7 @@ package com.mindertech.xxphoto.album;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +11,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.mindertech.xxphoto.R;
+import com.zhihu.matisse.engine.impl.PicassoEngine;
 import com.zhihu.matisse.internal.entity.Album;
+
+import java.io.File;
 
 /**
  * @project xxphoto_android
@@ -21,8 +25,11 @@ import com.zhihu.matisse.internal.entity.Album;
  */
 public class XXPhotoAlbumGridAdapter extends CursorAdapter {
 
+    private Context mContext;
+
     public XXPhotoAlbumGridAdapter(Context context, Cursor c) {
         super(context, c, true);
+        this.mContext = context;
     }
 
     @Override
@@ -39,5 +46,7 @@ public class XXPhotoAlbumGridAdapter extends CursorAdapter {
 
         String name = album.getDisplayName(context) + " (" + String.valueOf(album.getCount()) + ")";
         tv_name.setText(name);
+
+        new PicassoEngine().loadImage(mContext, 200, 200, iv_image, Uri.fromFile(new File(album.getCoverPath())));
     }
 }
